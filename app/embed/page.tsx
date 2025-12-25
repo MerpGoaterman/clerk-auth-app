@@ -11,8 +11,8 @@ const LowcoderAppWrapper = dynamic(
 
 export default function EmbedPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white shadow-sm">
+    <div className="h-screen w-screen flex flex-col overflow-hidden">
+      <header className="bg-white shadow-sm flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">HonestStok Tools</h1>
           <UserButton 
@@ -26,7 +26,7 @@ export default function EmbedPage() {
         </div>
       </header>
 
-      <main className="flex-1 relative">
+      <main className="flex-1 overflow-hidden">
         <LowcoderAppWrapper
           appId="694b54e5cefb1b01e5640058"
           baseUrl="https://tools.honeststok.co"
