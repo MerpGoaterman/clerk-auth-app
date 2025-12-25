@@ -1,6 +1,6 @@
 "use client"
 
-import { useUser } from "@clerk/nextjs";
+import { useUser, useOrganization } from "@clerk/nextjs";
 import { useMemo } from "react";
 
 interface LowcoderAppWrapperProps {
@@ -10,11 +10,12 @@ interface LowcoderAppWrapperProps {
 
 function LowcoderAppWrapper(props: LowcoderAppWrapperProps) {
   const { appId, baseUrl = "https://tools.honeststok.co" } = props;
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded: userLoaded } = useUser();
+  const { organization, membership, isLoaded: orgLoaded } = useOrganization();
 
-  // Construct hash parameters with user data
+  // Construct hash parameters with user and organization data
   const embedUrl = useMemo(() => {
-    if (!isLoaded || !user) {
+    if (!userLoaded || !orgLoaded || !user) {
       return `${baseUrl}/apps/${appId}/view`;
     }
     
@@ -29,11 +30,27 @@ function LowcoderAppWrapper(props: LowcoderAppWrapperProps) {
     if (user.lastName) params.append("lastName", user.lastName);
     if (user.fullName) params.append("fullName", user.fullName);
     
+    // Add organization data if user belongs to an organization
+    if (organization) {
+      params.append("orgId", organization.id);
+      params.append("orgName", organization.name);
+      if (organization.slug) params.append("orgSlug", organization.slug);
+    }
+    
+    // Add user's role and permissions in the organization
+    if (membership) {
+      params.append("orgRole", membership.role);
+      // Add permissions if available
+      if (membership.permissions && membership.permissions.length > 0) {
+        params.append("orgPermissions", membership.permissions.join(","));
+      }
+    }
+    
     return `${baseUrl}/apps/${appId}/view#${params.toString()}`;
-  }, [user, isLoaded, appId, baseUrl]);
+  }, [user, userLoaded, organization, membership, orgLoaded, appId, baseUrl]);
 
   // Show loading state while user data is being fetched
-  if (!isLoaded) {
+  if (!userLoaded || !orgLoaded) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
