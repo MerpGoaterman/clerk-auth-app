@@ -1,7 +1,7 @@
 "use client"
 
-import { useUser, useOrganization } from "@clerk/nextjs";
-import { useMemo } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { useEffect, useMemo, useState } from "react";
 
 interface LowcoderAppWrapperProps {
   appId: string;
@@ -10,47 +10,41 @@ interface LowcoderAppWrapperProps {
 
 function LowcoderAppWrapper(props: LowcoderAppWrapperProps) {
   const { appId, baseUrl = "https://tools.honeststok.co" } = props;
-  const { user, isLoaded: userLoaded } = useUser();
-  const { organization, membership, isLoaded: orgLoaded } = useOrganization();
+  const { getToken, isLoaded } = useAuth();
+  const [token, setToken] = useState<string | null>(null);
 
-  // Construct hash parameters with user and organization data
-  const embedUrl = useMemo(() => {
-    if (!userLoaded || !orgLoaded || !user) {
-      return `${baseUrl}/apps/${appId}/view`;
-    }
-    
-    const params = new URLSearchParams();
-    
-    // Add user data as hash parameters
-    if (user.id) params.append("userId", user.id);
-    if (user.primaryEmailAddress?.emailAddress) {
-      params.append("email", user.primaryEmailAddress.emailAddress);
-    }
-    if (user.firstName) params.append("firstName", user.firstName);
-    if (user.lastName) params.append("lastName", user.lastName);
-    if (user.fullName) params.append("fullName", user.fullName);
-    
-    // Add organization data if user belongs to an organization
-    if (organization) {
-      params.append("orgId", organization.id);
-      params.append("orgName", organization.name);
-      if (organization.slug) params.append("orgSlug", organization.slug);
-    }
-    
-    // Add user's role and permissions in the organization
-    if (membership) {
-      params.append("orgRole", membership.role);
-      // Add permissions if available
-      if (membership.permissions && membership.permissions.length > 0) {
-        params.append("orgPermissions", membership.permissions.join(","));
+  // Fetch the JWT token when the component mounts
+  useEffect(() => {
+    async function fetchToken() {
+      if (isLoaded) {
+        try {
+          // Get the Hasura-compatible JWT token
+          const sessionToken = await getToken({ template: "hasura" });
+          setToken(sessionToken);
+        } catch (error) {
+          console.error("Error fetching token:", error);
+        }
       }
     }
     
-    return `${baseUrl}/apps/${appId}/view#${params.toString()}`;
-  }, [user, userLoaded, organization, membership, orgLoaded, appId, baseUrl]);
+    fetchToken();
+  }, [isLoaded, getToken]);
 
-  // Show loading state while user data is being fetched
-  if (!userLoaded || !orgLoaded) {
+  // Construct URL with JWT token as hash parameter
+  const embedUrl = useMemo(() => {
+    if (!token) {
+      return `${baseUrl}/apps/${appId}/view`;
+    }
+    
+    // Pass the JWT token as a hash parameter
+    const params = new URLSearchParams();
+    params.append("token", token);
+    
+    return `${baseUrl}/apps/${appId}/view#${params.toString()}`;
+  }, [token, appId, baseUrl]);
+
+  // Show loading state while token is being fetched
+  if (!isLoaded || !token) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
