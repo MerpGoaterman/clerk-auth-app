@@ -9,7 +9,7 @@ interface LowcoderAppWrapperProps {
 }
 
 function LowcoderAppWrapper(props: LowcoderAppWrapperProps) {
-  const { appId, baseUrl = "https://tools.honeststok.co" } = props;
+  const { appId, baseUrl = "https://app.lowcoder.cloud" } = props;
   const { getToken, isLoaded } = useAuth();
   const [token, setToken] = useState<string | null>(null);
 
