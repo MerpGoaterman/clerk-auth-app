@@ -17,7 +17,7 @@ export default function EmbedPage() {
     <div className="h-screen w-screen flex flex-col overflow-hidden">
       <header className="bg-white shadow-sm flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">HonestStok Tools</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Onyx</h1>
           <UserButton 
             afterSignOutUrl="/sign-in"
             appearance={{
