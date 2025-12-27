@@ -10,6 +10,9 @@ const LowcoderAppWrapper = dynamic(
 );
 
 export default function EmbedPage() {
+  const appId = process.env.NEXT_PUBLIC_LOWCODER_APP_ID || '694b54e5cefb1b01e5640058';
+  const baseUrl = process.env.NEXT_PUBLIC_LOWCODER_BASE_URL || 'https://tools.honeststok.co';
+
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
       <header className="bg-white shadow-sm flex-shrink-0">
@@ -28,8 +31,8 @@ export default function EmbedPage() {
 
       <main className="flex-1 overflow-hidden">
         <LowcoderAppWrapper
-          appId="694b54e5cefb1b01e5640058"
-          baseUrl="https://tools.honeststok.co"
+          appId={appId}
+          baseUrl={baseUrl}
         />
       </main>
     </div>
